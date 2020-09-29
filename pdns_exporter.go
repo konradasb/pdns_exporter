@@ -77,8 +77,12 @@ var (
 )
 
 var (
+	statisticsEndpoint = "servers/localhost/statistics"
+)
+
+var (
 	listenAddress = flag.String("listen-address", ":9120", "Address to listen on for incoming connections.")
-	apiURL        = flag.String("api-url", "http://localhost:8081/api/v1/servers/localhost/statistics", "PowerDNS statistics endpoint URL.")
+	apiURL        = flag.String("api-url", "http://localhost:8081/api/v1/", "PowerDNS statistics endpoint URL.")
 	apiKey        = flag.String("api-key", "", "PowerDNS API Key")
 )
 
@@ -90,7 +94,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) scrapeStatistics() []Statistic {
-	request, err := http.NewRequest("GET", e.apiURL, nil)
+	request, err := http.NewRequest("GET", fmt.Sprint(e.apiURL, statisticsEndpoint), nil)
 	if err != nil {
 		log.Fatalln("Failed to create new request context:", err)
 	}
@@ -157,7 +161,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	for _, mapStatisticItem := range mapStatisticItems {
 		for _, simpleStatisticItem := range mapStatisticItem.Value {
-			fmt.Println("Simple")
 			value, err := strconv.ParseFloat(simpleStatisticItem.Value, 64)
 			if err != nil {
 				log.Fatalf("Failed to convert string into float: %s", err)
@@ -195,7 +198,7 @@ func run() {
 	registerExporters()
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(*listenAddress, nil)
+	log.Fatalln(http.ListenAndServe(*listenAddress, nil))
 }
 
 func unmarshallStatistics(statistics []Statistic, statisticItems *[]StatisticItem,
