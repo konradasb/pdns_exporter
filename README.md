@@ -1,7 +1,7 @@
 # PowerDNS Exporter
 Export [PowerDNS](https://www.powerdns.com/) service metrics for scraping by Prometheus.
 
-## Supporter PowerDNS services
+## Supported PowerDNS services
 * [Authoritative Server](https://www.powerdns.com/auth.html)
 
 ---
